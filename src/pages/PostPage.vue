@@ -39,6 +39,7 @@ import { Api } from "@/api";
 import MyInput from "@/components/UI/MyInput";
 
 export default {
+  name: "PostPage",
   components: {
     MyInput,
     PostForm,
