@@ -1,30 +1,70 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+  <div class="app">
+    <h1 class="title">Страница с постами</h1>
+    <my-button class="create" @click="showDialog"
+      >Создать пользователя</my-button
+    >
+    <my-dialog v-model:show="dialogVisible">
+      <post-form @create="createPost" />
+    </my-dialog>
+    <post-list :posts="posts" @remove="removePost" />
   </div>
-  <router-view />
 </template>
 
+<script>
+import PostForm from "@/components/PostForm";
+import PostList from "@/components/PostList";
+
+export default {
+  components: {
+    PostForm,
+    PostList,
+  },
+
+  data() {
+    return {
+      posts: [
+        { id: 1, title: "JavaScript", body: "Description for post" },
+        { id: 2, title: "Vue", body: "Description for post" },
+        { id: 3, title: "React", body: "Description for post" },
+      ],
+      dialogVisible: false,
+    };
+  },
+
+  methods: {
+    createPost(post) {
+      this.posts.unshift(post);
+      this.dialogVisible = false;
+    },
+    removePost(post) {
+      this.posts = this.posts.filter((p) => p.id !== post.id);
+    },
+    showDialog() {
+      this.dialogVisible = true;
+    },
+    async fetchUsers() {
+
+    }
+  },
+};
+</script>
+
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-#nav {
-  padding: 30px;
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+.title,
+.create {
+  margin-bottom: 15px;
 }
 </style>
