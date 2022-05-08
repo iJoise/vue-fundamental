@@ -9,25 +9,26 @@
     <my-dialog v-model:show="dialogVisible">
       <post-form @create="createPost" />
     </my-dialog>
-    <div class="page__wrapper">
-      <div
-        v-for="pageNumber in totalPage"
-        :key="pageNumber"
-        class="page"
-        @click="changePage(pageNumber)"
-        :class="{
-          'current-page': page === pageNumber,
-        }"
-      >
-        {{ pageNumber }}
-      </div>
-    </div>
+    <!--    <div class="page__wrapper">-->
+    <!--      <div-->
+    <!--        v-for="pageNumber in totalPage"-->
+    <!--        :key="pageNumber"-->
+    <!--        class="page"-->
+    <!--        @click="changePage(pageNumber)"-->
+    <!--        :class="{-->
+    <!--          'current-page': page === pageNumber,-->
+    <!--        }"-->
+    <!--      >-->
+    <!--        {{ pageNumber }}-->
+    <!--      </div>-->
+    <!--    </div>-->
     <post-list
       :posts="sortedAndSearchedPosts"
       @remove="removePost"
       v-if="!isPostLoading"
     />
     <h2 v-else>Loading...</h2>
+    <div ref="observer" class="observer" />
   </div>
 </template>
 
@@ -72,9 +73,9 @@ export default {
     showDialog() {
       this.dialogVisible = true;
     },
-    changePage(pageNumber) {
-      this.page = pageNumber;
-    },
+    // changePage(pageNumber) {
+    //   this.page = pageNumber;
+    // },
     async fetchPosts() {
       try {
         this.isPostLoading = true;
@@ -89,9 +90,33 @@ export default {
         this.isPostLoading = false;
       }
     },
+    async loadMorePosts() {
+      try {
+        this.page += 1;
+        const response = await Api.fetchPosts(this.page, this.limit);
+        this.totalPage = Math.ceil(
+          response.headers["x-total-count"] / this.limit
+        );
+        this.posts = [...this.posts, ...response.data];
+      } catch (err) {
+        console.warn(err);
+      }
+    },
   },
   mounted() {
     this.fetchPosts();
+    const options = {
+      rootMargin: "0px",
+      threshold: 1.0,
+    };
+    const callback = (entries, observer) => {
+      if (entries[0].isIntersecting && this.page < this.totalPage) {
+        this.loadMorePosts();
+      }
+      console.log(observer);
+    };
+    const observer = new IntersectionObserver(callback, options);
+    observer.observe(this.$refs.observer);
   },
   computed: {
     sortedPosts() {
@@ -108,13 +133,8 @@ export default {
     },
   },
   watch: {
-    page() {
-      this.fetchPosts();
-    },
-    // selectedSort(newValue) {
-    //   this.posts.sort((post1, post2) => {
-    //     return post1[newValue]?.localeCompare(post2[newValue]);
-    //   });
+    // page() {
+    //   this.fetchPosts();
     // },
   },
 };
@@ -150,5 +170,10 @@ export default {
 
 .current-page {
   border: 2px solid teal;
+}
+
+.observer {
+  height: 30px;
+  background: darkmagenta;
 }
 </style>
