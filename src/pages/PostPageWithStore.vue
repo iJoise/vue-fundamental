@@ -35,7 +35,7 @@ import PostList from "@/components/PostList";
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 
 export default {
-  name: "PostPage",
+  name: "PostPageWithStore",
   components: {
     PostForm,
     PostList,

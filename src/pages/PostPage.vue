@@ -9,26 +9,25 @@
     <my-dialog v-model:show="dialogVisible">
       <post-form @create="createPost" />
     </my-dialog>
-    <!--    <div class="page__wrapper">-->
-    <!--      <div-->
-    <!--        v-for="pageNumber in totalPage"-->
-    <!--        :key="pageNumber"-->
-    <!--        class="page"-->
-    <!--        @click="changePage(pageNumber)"-->
-    <!--        :class="{-->
-    <!--          'current-page': page === pageNumber,-->
-    <!--        }"-->
-    <!--      >-->
-    <!--        {{ pageNumber }}-->
-    <!--      </div>-->
-    <!--    </div>-->
+    <div class="page__wrapper">
+      <div
+        v-for="pageNumber in totalPage"
+        :key="pageNumber"
+        class="page"
+        @click="changePage(pageNumber)"
+        :class="{
+          'current-page': page === pageNumber,
+        }"
+      >
+        {{ pageNumber }}
+      </div>
+    </div>
     <post-list
       :posts="sortedAndSearchedPosts"
       @remove="removePost"
       v-if="!isPostLoading"
     />
     <h2 v-else>Loading...</h2>
-    <div v-intersection="loadMorePosts" class="observer" />
   </div>
 </template>
 
@@ -74,9 +73,9 @@ export default {
     showDialog() {
       this.dialogVisible = true;
     },
-    // changePage(pageNumber) {
-    //   this.page = pageNumber;
-    // },
+    changePage(pageNumber) {
+      this.page = pageNumber;
+    },
     async fetchPosts() {
       try {
         this.isPostLoading = true;
@@ -89,18 +88,6 @@ export default {
         console.warn(err);
       } finally {
         this.isPostLoading = false;
-      }
-    },
-    async loadMorePosts() {
-      try {
-        this.page += 1;
-        const response = await Api.fetchPosts(this.page, this.limit);
-        this.totalPage = Math.ceil(
-          response.headers["x-total-count"] / this.limit
-        );
-        this.posts = [...this.posts, ...response.data];
-      } catch (err) {
-        console.warn(err);
       }
     },
   },
@@ -122,9 +109,9 @@ export default {
     },
   },
   watch: {
-    // page() {
-    //   this.fetchPosts();
-    // },
+    page() {
+      this.fetchPosts();
+    },
   },
 };
 </script>
@@ -147,10 +134,5 @@ export default {
 
 .current-page {
   border: 2px solid teal;
-}
-
-.observer {
-  height: 30px;
-  background: darkmagenta;
 }
 </style>
